@@ -9,8 +9,8 @@ from pose import estimate_essential_matrix, decompose_essential_matrix, \
                 validate_cheirality_condition, get_3d_triangulated_points
 # 4. **Bundle Adjustment**: Refine the estimated camera poses and 3D point positions simultaneously. This step minimizes the reprojection error, which is the difference between the observed position of a point in an image and the projected position of the estimated 3D point using the camera pose.
 from bundle_adjust import bundle_adjustments
+## TODOS - 
 # 5. **Dense Reconstruction**: After determining camera poses and sparse 3D points from the previous steps, you can proceed to reconstruct the scene densely. This involves understanding which parts of the images correspond to which 3D points (i.e., establishing a dense correspondence between multiple images).
-
 # 6. **Meshing and Texturing**: Once you have a dense cloud of 3D points, you can create a mesh or surface from them. This is often followed by "draping" the images over this surface to produce a textured 3D model.
 
 
@@ -70,29 +70,6 @@ def main():
     # bundle_adjustments
     # bundle_adjustments(R, t, INTRINSIC_MATRIX, points_3d, src_pts, dst_pts, P1, P2)
 
-
-    import matplotlib.pyplot as plt
-
-    # Rectify images
-    valid, H1, H2 = cv2.stereoRectifyUncalibrated(np.float32(src_pts), np.float32(dst_pts), fundamental_mat, img1.shape[1::-1])
-    if valid:
-        print("Valid hurray~")
-
-    img0_rectified = cv2.warpPerspective(img0, H1, img0.shape[1::-1])
-    img1_rectified = cv2.warpPerspective(img1, H2, img1.shape[1::-1])
-
-
-    # Draw epipolar lines
-    lines1 = cv2.computeCorrespondEpilines(dst_pts.reshape(-1, 1, 2), 2, fundamental_mat).reshape(-1, 3)
-    lines2 = cv2.computeCorrespondEpilines(src_pts.reshape(-1, 1, 2), 1, fundamental_mat).reshape(-1, 3)
-
-    img0_epilines, img1_epilines = draw_epilines(img0_rectified, img1_rectified, lines1, src_pts, dst_pts)
-
-    # Display images
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1), plt.imshow(img0_epilines)
-    plt.subplot(1, 2, 2), plt.imshow(img1_epilines)
-    plt.show()
 
 
 if __name__ == '__main__':

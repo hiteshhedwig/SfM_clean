@@ -53,7 +53,7 @@ def get_3d_triangulated_points(K, rot, tra, pts1, pts2):
         # Convert from homogeneous to regular 3D coordinates
         points_3D = points_3D_homogeneous[:3] / points_3D_homogeneous[3]
         points3d.append(points_3D)
-    return points3d
+    return np.array(points3d), Projection_1, Projection_2
 
 
 

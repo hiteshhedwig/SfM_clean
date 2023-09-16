@@ -8,7 +8,7 @@ from feature import feature_extraction_and_matching,demo_matched_image
 from pose import estimate_essential_matrix, decompose_essential_matrix, \
                 validate_cheirality_condition, get_3d_triangulated_points
 # 4. **Bundle Adjustment**: Refine the estimated camera poses and 3D point positions simultaneously. This step minimizes the reprojection error, which is the difference between the observed position of a point in an image and the projected position of the estimated 3D point using the camera pose.
-
+from bundle_adjust import bundle_adjustments
 # 5. **Dense Reconstruction**: After determining camera poses and sparse 3D points from the previous steps, you can proceed to reconstruct the scene densely. This involves understanding which parts of the images correspond to which 3D points (i.e., establishing a dense correspondence between multiple images).
 
 # 6. **Meshing and Texturing**: Once you have a dense cloud of 3D points, you can create a mesh or surface from them. This is often followed by "draping" the images over this surface to produce a textured 3D model.
@@ -50,8 +50,11 @@ def main():
     print("Valid rotation and translation matrices \n", R, "\n\n", t)
 
     # get 3d points of all the matches -
-    points_3d = get_3d_triangulated_points(INTRINSIC_MATRIX, R, t, src_pts, dst_pts)
+    points_3d, P1, P2 = get_3d_triangulated_points(INTRINSIC_MATRIX, R, t, src_pts, dst_pts)
     print(len(points_3d))
+
+    # bundle_adjustments
+    # bundle_adjustments(R, t, INTRINSIC_MATRIX, points_3d, src_pts, dst_pts, P1, P2)
 
 
 if __name__ == '__main__':

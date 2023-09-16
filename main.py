@@ -23,6 +23,20 @@ INTRINSIC_MATRIX = np.array([
 def load_image(filename):
     return cv2.imread(filename)
 
+def draw_epilines(img1, img2, lines, pts1, pts2):
+    """Draw epipolar lines and points."""
+    r, c, _ = img2.shape  # Get the shape with channels
+    for r, pt1, pt2 in zip(lines, pts1.astype(int), pts2.astype(int)):
+        color = tuple(np.random.randint(0, 255, 3).tolist())
+        x0, y0 = map(int, [0, -r[2] / r[1]])
+        x1, y1 = map(int, [c, -(r[2] + r[0] * c) / r[1]])
+        img1 = cv2.line(img1, (x0, y0), (x1, y1), color, 1)
+        img1 = cv2.circle(img1, tuple(pt1), 5, color, -1)
+        img2 = cv2.circle(img2, tuple(pt2), 5, color, -1)
+    return img1, img2
+
+
+
 def main():
     DEBUG = False
 
@@ -55,6 +69,30 @@ def main():
 
     # bundle_adjustments
     # bundle_adjustments(R, t, INTRINSIC_MATRIX, points_3d, src_pts, dst_pts, P1, P2)
+
+
+    import matplotlib.pyplot as plt
+
+    # Rectify images
+    valid, H1, H2 = cv2.stereoRectifyUncalibrated(np.float32(src_pts), np.float32(dst_pts), fundamental_mat, img1.shape[1::-1])
+    if valid:
+        print("Valid hurray~")
+
+    img0_rectified = cv2.warpPerspective(img0, H1, img0.shape[1::-1])
+    img1_rectified = cv2.warpPerspective(img1, H2, img1.shape[1::-1])
+
+
+    # Draw epipolar lines
+    lines1 = cv2.computeCorrespondEpilines(dst_pts.reshape(-1, 1, 2), 2, fundamental_mat).reshape(-1, 3)
+    lines2 = cv2.computeCorrespondEpilines(src_pts.reshape(-1, 1, 2), 1, fundamental_mat).reshape(-1, 3)
+
+    img0_epilines, img1_epilines = draw_epilines(img0_rectified, img1_rectified, lines1, src_pts, dst_pts)
+
+    # Display images
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1), plt.imshow(img0_epilines)
+    plt.subplot(1, 2, 2), plt.imshow(img1_epilines)
+    plt.show()
 
 
 if __name__ == '__main__':

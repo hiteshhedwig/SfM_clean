@@ -5,7 +5,8 @@ import numpy as np
 # 2. **Feature Matching**: Find the same points of interest in multiple images. If two images have a set of points in common, it's possible they are observing the same part of a scene. 
 from feature import feature_extraction_and_matching,demo_matched_image
 # 3. **Estimate Motion**: Using the matched points, estimate the camera's motion between the two images. This is typically done using techniques like the eight-point algorithm for fundamental matrix estimation, which can be followed by a triangulation method to determine 3D points in space.
-from pose import estimate_essential_matrix, decompose_essential_matrix, validate_cheirality_condition
+from pose import estimate_essential_matrix, decompose_essential_matrix, \
+                validate_cheirality_condition, get_3d_triangulated_points
 # 4. **Bundle Adjustment**: Refine the estimated camera poses and 3D point positions simultaneously. This step minimizes the reprojection error, which is the difference between the observed position of a point in an image and the projected position of the estimated 3D point using the camera pose.
 
 # 5. **Dense Reconstruction**: After determining camera poses and sparse 3D points from the previous steps, you can proceed to reconstruct the scene densely. This involves understanding which parts of the images correspond to which 3D points (i.e., establishing a dense correspondence between multiple images).
@@ -48,6 +49,9 @@ def main():
     R,t = validate_cheirality_condition(INTRINSIC_MATRIX, possible_rotations, possible_translations, src_pts[0], dst_pts[0])
     print("Valid rotation and translation matrices \n", R, "\n\n", t)
 
+    # get 3d points of all the matches -
+    points_3d = get_3d_triangulated_points(INTRINSIC_MATRIX, R, t, src_pts, dst_pts)
+    print(len(points_3d))
 
 
 if __name__ == '__main__':

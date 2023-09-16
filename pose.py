@@ -43,6 +43,20 @@ def decompose_essential_matrix(essential_matrix):
 
     return [Rot_1, Rot_2], [tra_1, tra_2]
 
+def get_3d_triangulated_points(K, rot, tra, pts1, pts2):
+    Projection_1 = K @ np.hstack([np.eye(3), np.zeros((3, 1))])
+    Projection_2 = K @ np.hstack([rot, tra])
+
+    points3d = []
+    for pt1, pt2 in zip(pts1, pts2):
+        points_3D_homogeneous = cv2.triangulatePoints(Projection_1, Projection_2, pt1, pt2)
+        # Convert from homogeneous to regular 3D coordinates
+        points_3D = points_3D_homogeneous[:3] / points_3D_homogeneous[3]
+        points3d.append(points_3D)
+    return points3d
+
+
+
 def validate_cheirality_condition(K, rotations_arr, translation_arr, pt1, pt2):
     for R, t in zip(rotations_arr, translation_arr):
         print("=======")
@@ -71,3 +85,5 @@ def validate_cheirality_condition(K, rotations_arr, translation_arr, pt1, pt2):
             return R, t
         
     raise Exception("Couldnt find any valid projection - check your pt1 and pt2 points")
+
+

@@ -31,10 +31,34 @@ def decompose_essential_matrix(essential_matrix):
     Rot_1 = U@W@Vt
     Rot_2 = U@W.T@Vt
 
-    # two possible translation vectors
-    tra_1 = U[:2]
-    tra_2 = (-1)*U[:2]
+    # Ensure the rotation matrices are proper rotations (det(R) = 1)
+    if np.linalg.det(Rot_1) < 0:
+        Rot_1 = -Rot_1
+    if np.linalg.det(Rot_2) < 0:
+        Rot_2 = -Rot_2
 
-    return [Rot_1, Rot_2], [tra_1,tra_2]
+    # Two possible translation vectors
+    tra_1 = U[:, 2]
+    tra_2 = -U[:, 2]
+
+    return [Rot_1, Rot_2], [tra_1, tra_2]
+
+def triangulation():
+    pass
 
 
+def verify_cheirality_condition(K, rotations_arr, translation_arr, pt1, pt2):
+    for R, t in zip(rotations_arr, translation_arr):
+        # Triangulate a Point:
+        # For each of the four possible (R, t) combinations, triangulate a 3D point using the matched 2D points from the two images.
+        Projection_1 = K @ np.hstack([np.eye(3), np.zeros((3, 1))])
+
+        print("R ", R.shape)
+        print("t ", t.shape)
+        Projection_2 = K @ np.hstack([R, t])
+
+        # Triangulate using OpenCV
+        X_homogeneous = cv2.triangulatePoints(Projection_1, Projection_2, pt1, pt2)
+        X = X_homogeneous[:3] / X_homogeneous[3]
+
+        print("Triangulated 3D point:", X)

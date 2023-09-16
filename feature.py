@@ -38,7 +38,7 @@ def feature_extraction_and_matching(img0, img1):
 
     # Filter matches using the inliers
     ransac_matches = [good_matches[i] for i, val in enumerate(inliers) if val == 1]
-    return fundamental_mat, kp1, kp2, ransac_matches
+    return fundamental_mat, kp1, kp2, ransac_matches, src_pts, dst_pts
 
 def demo_matched_image(img0, img1, kp1, kp2, ransac_matches):
     img_matches = cv2.drawMatches(img0, kp1, img1, kp2, ransac_matches, None)

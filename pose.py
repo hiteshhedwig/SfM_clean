@@ -38,17 +38,14 @@ def decompose_essential_matrix(essential_matrix):
         Rot_2 = -Rot_2
 
     # Two possible translation vectors
-    tra_1 = U[:, 2]
-    tra_2 = -U[:, 2]
+    tra_1 = U[:, 2].reshape(3,1)
+    tra_2 = -U[:, 2].reshape(3,1)
 
     return [Rot_1, Rot_2], [tra_1, tra_2]
 
-def triangulation():
-    pass
-
-
-def verify_cheirality_condition(K, rotations_arr, translation_arr, pt1, pt2):
+def validate_cheirality_condition(K, rotations_arr, translation_arr, pt1, pt2):
     for R, t in zip(rotations_arr, translation_arr):
+        print("=======")
         # Triangulate a Point:
         # For each of the four possible (R, t) combinations, triangulate a 3D point using the matched 2D points from the two images.
         Projection_1 = K @ np.hstack([np.eye(3), np.zeros((3, 1))])
@@ -62,3 +59,15 @@ def verify_cheirality_condition(K, rotations_arr, translation_arr, pt1, pt2):
         X = X_homogeneous[:3] / X_homogeneous[3]
 
         print("Triangulated 3D point:", X)
+        # Check if the point is in front of the first camera
+        if X[2] <= 0:
+            continue
+
+        # Transform the point to the second camera's coordinate system
+        X_transformed = R @ X + t
+
+        # Check if the point is in front of the second camera
+        if X_transformed[2] > 0:
+            return R, t
+        
+    raise Exception("Couldnt find any valid projection - check your pt1 and pt2 points")

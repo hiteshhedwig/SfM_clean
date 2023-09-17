@@ -28,8 +28,8 @@ def decompose_essential_matrix(essential_matrix):
     ])
 
     # two possible rotation matrices
-    Rot_1 = U@W@Vt
-    Rot_2 = U@W.T@Vt
+    Rot_1 = U @ W   @ Vt
+    Rot_2 = U @ W.T @ Vt
 
     # Ensure the rotation matrices are proper rotations (det(R) = 1)
     if np.linalg.det(Rot_1) < 0:
